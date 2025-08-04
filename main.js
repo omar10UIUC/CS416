@@ -298,10 +298,10 @@ function drawScene2BarChart() {
             title: "Lower Profit"
         },
         data: { category: "Furniture" },
-        dx: 40,
-        dy: 20,
+        dx: 0,
+        dy: -50,
         subject: {
-            y1: y(0),
+            y1: y(profitByCategory.get("Furniture")),
             y2: y(profitByCategory.get("Furniture"))
         }
     }, {
