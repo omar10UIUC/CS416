@@ -1,5 +1,3 @@
-// --- STATE VARIABLES ---
-// These variables will define the current state of our narrative visualization.
 let currentSceneIndex = 0;
 let superstoreData = [];
 let usMapData = null;
