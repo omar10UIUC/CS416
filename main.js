@@ -1,5 +1,3 @@
-// --- STATE VARIABLES ---
-// These variables will define the current state of our narrative visualization.
 let currentSceneIndex = 0;
 let superstoreData = [];
 let usMapData = null;
@@ -55,6 +53,9 @@ Promise.all([
     setupControls();
 }).catch(function(error) {
     console.error("Error loading data:", error);
+    container.append("p")
+        .style("color", "red")
+        .text("Error: Could not load data. Please ensure 'superstore.csv' is in the same directory and you are running a local web server.");
 });
 
 // --- SCENE NAVIGATION AND CONTROL FUNCTIONS ---
@@ -78,6 +79,8 @@ function updateScene(sceneIndex) {
     // Clear the existing SVG to make way for the new scene.
     container.select("svg").remove();
     container.select(".state-select-container").remove();
+    // Remove any lingering tooltip from previous scenes.
+    d3.select("body").select(".tooltip").remove();
 
     // Update the control buttons' state and scene indicator.
     prevButton.property("disabled", currentSceneIndex === 0);
@@ -235,6 +238,15 @@ function drawScene2BarChart() {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Add chart title.
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -margin.top / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("text-decoration", "underline")
+        .text("Nation Wide Total Profit by Category");
+
     // Define scales for x (category) and y (profit).
     const x = d3.scaleBand()
         .domain(Array.from(profitByCategory.keys()))
@@ -248,17 +260,16 @@ function drawScene2BarChart() {
         .nice()
         .range([height, 0]);
 
-    // Draw the bars.
+    // Draw the bars using the .join() pattern for D3 v7
     svg.selectAll(".bar")
         .data(Array.from(profitByCategory))
-        .enter()
-        .append("rect")
+        .join("rect")
         .attr("class", "bar")
         .attr("x", d => x(d[0]))
-        .attr("y", d => y(Math.max(0, d[1]))) // Bars start from 0 line
+        .attr("y", d => y(Math.max(0, d[1])))
         .attr("width", x.bandwidth())
         .attr("height", d => Math.abs(y(d[1]) - y(0)))
-        .attr("fill", "#007bff"); // A standard blue color
+        .attr("fill", "#007bff");
 
     // Add axes.
     svg.append("g")
@@ -271,7 +282,7 @@ function drawScene2BarChart() {
     // Add annotations to highlight key categories.
     const annotations = [{
         note: {
-            label: "Technology is a major contributor to total profit.",
+            label: "Technology contributes the most to overall profit.",
             title: "Highest Profit"
         },
         data: { category: "Technology" },
@@ -283,7 +294,7 @@ function drawScene2BarChart() {
         }
     }, {
         note: {
-            label: "Furniture often operates at a much lower profit margin.",
+            label: "Furniture has a much lower profit margin.",
             title: "Lower Profit"
         },
         data: { category: "Furniture" },
@@ -292,6 +303,27 @@ function drawScene2BarChart() {
         subject: {
             y1: y(0),
             y2: y(profitByCategory.get("Furniture"))
+        }
+    }, {
+        note: {
+            label: "Profit",
+            bgPadding: 5,
+            title: "Profit"
+        },
+        data: { category: "Technology" },
+        dx: 50,
+        dy: -100,
+        subject: {
+            y1: y(profitByCategory.get("Technology")),
+            y2: y(profitByCategory.get("Technology")),
+            x: 0,
+            x2: -50,
+            width: 0,
+            height: 0,
+            radius: 0
+        },
+        connector: {
+            end: "dot"
         }
     }];
 
@@ -340,14 +372,14 @@ function drawScene3ScatterPlot() {
         .attr("opacity", 0.6)
         .on("mouseover", function(event, d) {
             // Tooltip logic for free-form interaction.
-            d3.select(".tooltip")
+            d3.select("body").select(".tooltip")
                 .html(`Product: ${d["Product Name"]}<br>Category: ${d.Category}<br>Profit: $${d.Profit.toFixed(2)}<br>Discount: ${d.Discount * 100}%`)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 20) + "px")
                 .style("opacity", 1);
         })
         .on("mouseout", function() {
-            d3.select(".tooltip").style("opacity", 0);
+            d3.select("body").select(".tooltip").style("opacity", 0);
         });
 
     // Add axes.
