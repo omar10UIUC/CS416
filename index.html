@@ -5,24 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Superstore Narrative Visualization</title>
     <link rel="stylesheet" href="style.css">
-    <!-- D3.js and D3-Annotation libraries -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://raw.githubusercontent.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
 </head>
 <body>
-    <div id="container">
-        <h1>Superstore Narrative Visualization</h1>
-        <div id="visualization-container">
-            <!-- D3.js visualizations will be rendered here -->
-        </div>
-        <div id="navigation-container">
-            <button id="prev-button">Previous</button>
-            <span id="scene-indicator">Scene 1 of 3</span>
-            <button id="next-button">Next</button>
-        </div>
+    <h1 id="viz-title">Superstore Narrative Visualization</h1>
+
+    <!-- The main container for our visualization and controls -->
+    <div id="visualization-container">
+        <!-- This is where D3 will append the SVG for the charts -->
     </div>
-    
-    <!-- Link to the main JavaScript file for the visualization logic -->
+
+    <div id="controls">
+        <button id="prev-button" disabled>Previous</button>
+        <span id="scene-indicator">Scene 1 of 3</span>
+        <button id="next-button">Next</button>
+    </div>
+
+    <!-- Link to the D3 library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Link to the d3-annotation library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.min.js"></script>
+    <!-- Link to the topojson-client library -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <!-- Link to our JavaScript code -->
     <script src="main.js"></script>
 </body>
 </html>
