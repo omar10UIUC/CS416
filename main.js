@@ -173,55 +173,6 @@ function drawScene1StateSelectorChart() {
             .style("font-size", "16px")
             .style("text-decoration", "underline")
             .text(`Profit by Category in ${selectedState}`);
-            
-        // Add annotations to highlight key categories.
-        const sortedData = dataArray.sort((a, b) => b[1] - a[1]);
-        const annotations = [];
-
-        if (sortedData.length > 0) {
-            annotations.push({
-                note: {
-                    label: `Highest profit: $${sortedData[0][1].toFixed(2)}`,
-                    title: `Highest Profit: ${sortedData[0][0]}`
-                },
-                data: { category: sortedData[0][0] },
-                dx: 50,
-                dy: -20,
-                subject: {
-                    y1: y(0),
-                    y2: y(sortedData[0][1])
-                }
-            });
-
-            const lowestProfitCategory = sortedData[sortedData.length - 1];
-            if (lowestProfitCategory[1] < 0) {
-                 annotations.push({
-                    note: {
-                        label: `Lowest profit: $${lowestProfitCategory[1].toFixed(2)}`,
-                        title: `Major Loss: ${lowestProfitCategory[0]}`
-                    },
-                    data: { category: lowestProfitCategory[0] },
-                    dx: -50,
-                    dy: 20,
-                    subject: {
-                        y1: y(0),
-                        y2: y(lowestProfitCategory[1])
-                    }
-                });
-            }
-        }
-    
-        if (annotations.length > 0) {
-            const makeAnnotations = d3.annotation()
-                .type(d3.annotationCalloutRect)
-                .accessors({
-                    x: d => x(d.category) + x.bandwidth() / 2,
-                    y: d => y(dataArray.find(item => item[0] === d.category)[1])
-                })
-                .annotations(annotations);
-
-            svg.append("g").call(makeAnnotations);
-        }
     }
 }
 
@@ -269,7 +220,7 @@ function drawScene2BarChart() {
     // Add annotations to highlight key categories.
     const annotations = [{
         note: {
-            label: "Technology contributes the most to overall profit.",
+            label: "Technology is a major contributor to total profit.",
             title: "Highest Profit"
         },
         data: { category: "Technology" },
@@ -281,7 +232,7 @@ function drawScene2BarChart() {
         }
     }, {
         note: {
-            label: "Furniture has a much lower profit margin.",
+            label: "Furniture often operates at a much lower profit margin.",
             title: "Lower Profit"
         },
         data: { category: "Furniture" },
@@ -370,7 +321,7 @@ function drawScene3ScatterPlot() {
         }
     }, {
         note: {
-            label: "Most sales have no discount.",
+            label: "The majority of sales occur with no discount.",
             title: "Zero Discount Sales"
         },
         data: { Discount: 0.05, Profit: 500 },
@@ -380,7 +331,7 @@ function drawScene3ScatterPlot() {
             radius: 20
         }
     }];
-    
+
     const makeAnnotations = d3.annotation()
         .type(d3.annotationCalloutCircle)
         .accessors({
@@ -390,7 +341,7 @@ function drawScene3ScatterPlot() {
         .annotations(annotations);
 
     svg.append("g").call(makeAnnotations);
-    
+
     // Append the tooltip element to the body.
     d3.select("body").append("div")
         .attr("class", "tooltip");
