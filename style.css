@@ -1,145 +1,15 @@
-axis path,
-.axis line {
-    fill: none;
-    stroke: #aaa;
-    shape-rendering: crispEdges;
+body {
+    font-family: sans-serif;
+    text-align: center;
+    margin: 20px;
 }
-
-#controls button:hover:not(:disabled) {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+#visualization-container {
+    width: 100%;
+    max-width: 960px;
+    margin: 20px auto;
+    border: 1px solid #ccc; /* Optional: adds a border to see the container */
 }
-
-.axis text {
-    font-size: 0.9em;
-    fill: #666;
-}
-
-#controls button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-#viz-title {
-    font-size: 2.2em;
-    color: #333;
-    margin-bottom: 20px;
-    font-weight: 600;
-}
-
-.tooltip {
-    position: absolute;
-    text-align: left;
-    width: auto;
-    height: auto;
-    padding: 8px 12px;
-    font: 13px sans-serif;
-    background: #333;
-    color: white;
-    border-radius: 5px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    line-height: 1.4;
-    white-space: nowrap;
-}
-
-.annotation-subject {
-    stroke: #d9534f;
-    stroke-dasharray: 2,2;
-}
-
-.annotation-connector path {
-    stroke: #d9534f;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
-#controls button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-#main-svg {
-    display: block;
-    margin: 0 auto 20px auto;
-    background-color: #fdfdfd;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-}
-
 #controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-top: 20px;
 }
-
-.annotation-note-title {
-    font-size: 1.1em;
-    font-weight: bold;
-    fill: #1a1a1a;
-}
-
-.urban-line {
-    stroke: #4682b4;
-    fill: none;
-    stroke-width: 2px;
-}
-.rural-line {
-    stroke: #da70d6;
-    fill: none;
-    stroke-width: 2px;
-}
-.energy-bar { fill: #f08080; }
-.co2-point { fill: #66cdaa; }
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    background-color: #f0f2f5;
-    margin: 0;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-#visualization-container {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    width: 100%;
-    max-width: 1000px;
-    text-align: center;
-    position: relative;
-}
-
-.annotation-note-label {
-    font-size: 0.9em;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    fill: #333;
-}
-
-.x-axis-label, .y-axis-label {
-    font-size: 1.1em;
-    font-weight: 500;
-    fill: #444;
-}
-
-#scene-indicator {
-    font-size: 1.1em;
-    color: #555;
-    font-weight: 500;
 }
