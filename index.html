@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superstore Narrative Visualization</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1 id="viz-title">Superstore Narrative Visualization</h1>
+
+    <!-- The main container for our visualization and controls -->
+    <div id="visualization-container">
+        <!-- This is where D3 will append the SVG for the charts -->
+    </div>
+
+    <div id="controls">
+        <button id="prev-button" disabled>Previous</button>
+        <span id="scene-indicator">Scene 1 of 3</span>
+        <button id="next-button">Next</button>
+    </div>
+
+    <!-- Link to the D3 library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Link to the d3-annotation library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.min.js"></script>
+    <!-- Link to the topojson-client library -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <!-- Link to our JavaScript code -->
+    <script src="main.js"></script>
+</body>
+</html>
