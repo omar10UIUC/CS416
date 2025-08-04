@@ -8,7 +8,7 @@ const scenes = 3; // Total number of scenes
 
 // --- VISUALIZATION DIMENSIONS ---
 // Define the dimensions for our SVG container to ensure visual consistency.
-const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+const margin = { top: 100, right: 40, bottom: 60, left: 60 };
 const width = 960 - margin.left - margin.right;
 const height = 600 - margin.top - margin.bottom;
 
@@ -256,7 +256,7 @@ function drawScene2BarChart() {
     const maxProfit = d3.max(Array.from(profitByCategory.values()));
     const minProfit = d3.min(Array.from(profitByCategory.values()));
     const y = d3.scaleLinear()
-        .domain([minProfit, maxProfit])
+        .domain([Math.min(0, minProfit), maxProfit])
         .nice()
         .range([height, 0]);
 
@@ -312,7 +312,7 @@ function drawScene2BarChart() {
         },
         data: { category: "Technology" },
         dx: 50,
-        dy: -100,
+        dy: -40,
         subject: {
             y1: y(profitByCategory.get("Technology")),
             y2: y(profitByCategory.get("Technology")),
