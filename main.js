@@ -1,3 +1,5 @@
+// --- STATE VARIABLES ---
+// These variables will define the current state of our narrative visualization.
 let currentSceneIndex = 0;
 let superstoreData = [];
 let usMapData = null;
@@ -173,6 +175,55 @@ function drawScene1StateSelectorChart() {
             .style("font-size", "16px")
             .style("text-decoration", "underline")
             .text(`Profit by Category in ${selectedState}`);
+            
+        // Add annotations to highlight key categories.
+        const sortedData = dataArray.sort((a, b) => b[1] - a[1]);
+        const annotations = [];
+
+        if (sortedData.length > 0) {
+            annotations.push({
+                note: {
+                    label: `Highest profit: $${sortedData[0][1].toFixed(2)}`,
+                    title: `Highest Profit: ${sortedData[0][0]}`
+                },
+                data: { category: sortedData[0][0] },
+                dx: 50,
+                dy: -20,
+                subject: {
+                    y1: y(0),
+                    y2: y(sortedData[0][1])
+                }
+            });
+
+            const lowestProfitCategory = sortedData[sortedData.length - 1];
+            if (lowestProfitCategory[1] < 0) {
+                 annotations.push({
+                    note: {
+                        label: `Lowest profit: $${lowestProfitCategory[1].toFixed(2)}`,
+                        title: `Major Loss: ${lowestProfitCategory[0]}`
+                    },
+                    data: { category: lowestProfitCategory[0] },
+                    dx: -50,
+                    dy: 20,
+                    subject: {
+                        y1: y(0),
+                        y2: y(lowestProfitCategory[1])
+                    }
+                });
+            }
+        }
+    
+        if (annotations.length > 0) {
+            const makeAnnotations = d3.annotation()
+                .type(d3.annotationCalloutRect)
+                .accessors({
+                    x: d => x(d.category) + x.bandwidth() / 2,
+                    y: d => y(dataArray.find(item => item[0] === d.category)[1])
+                })
+                .annotations(annotations);
+
+            svg.append("g").call(makeAnnotations);
+        }
     }
 }
 
