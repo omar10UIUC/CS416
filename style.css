@@ -1,15 +1,114 @@
 body {
-    font-family: sans-serif;
-    text-align: center;
-    margin: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
 }
-#visualization-container {
+
+#container {
     width: 100%;
-    max-width: 960px;
-    margin: 20px auto;
-    border: 1px solid #ccc; /* Optional: adds a border to see the container */
+    max-width: 1000px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    box-sizing: border-box;
 }
-#controls {
-    margin-top: 20px;
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
 }
+
+#navigation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#prev-button,
+#next-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#prev-button:hover,
+#next-button:hover {
+    background-color: #0056b3;
+}
+
+#prev-button:disabled,
+#next-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#scene-indicator {
+    margin: 0 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #555;
+}
+
+#visualization-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: left;
+    padding: 8px;
+    font: 12px sans-serif;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.axis-label {
+    fill: #555;
+    font-size: 14px;
+}
+
+/* Annotation-specific styles */
+.annotation-note-label, .annotation-note-title {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+
+.annotation-note-title {
+    font-weight: bold;
+    fill: #000;
+}
+
+.annotation-note-label {
+    fill: #333;
+}
+
+.state-select-container {
+    margin-bottom: 20px;
+}
+
+#state-select {
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }

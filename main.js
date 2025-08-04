@@ -1,3 +1,5 @@
+// --- STATE VARIABLES ---
+// These variables will define the current state of our narrative visualization.
 let currentSceneIndex = 0;
 let superstoreData = [];
 let usMapData = null;
@@ -25,11 +27,9 @@ const sceneIndicator = d3.select("#scene-indicator");
 // if you are opening the file with a 'file://' URL. You must use a local
 // web server (e.g., 'python -m http.server') to serve these files.
 Promise.all([
-    d3.csv("superstore.csv"),
-    d3.json("states-albers-10m.json") // Local file name
+    d3.csv("superstore.csv")
 ]).then(function(data) {
     superstoreData = data[0];
-    usMapData = data[1];
 
     // Clean and pre-process the data for our visualizations.
     superstoreData.forEach(d => {
@@ -77,6 +77,7 @@ function setupControls() {
 function updateScene(sceneIndex) {
     // Clear the existing SVG to make way for the new scene.
     container.select("svg").remove();
+    container.select(".state-select-container").remove();
 
     // Update the control buttons' state and scene indicator.
     prevButton.property("disabled", currentSceneIndex === 0);
@@ -85,7 +86,7 @@ function updateScene(sceneIndex) {
 
     // Call the appropriate scene drawing function.
     if (sceneIndex === 0) {
-        drawScene1Map();
+        drawScene1StateSelectorChart();
     } else if (sceneIndex === 1) {
         drawScene2BarChart();
     } else if (sceneIndex === 2) {
@@ -93,76 +94,137 @@ function updateScene(sceneIndex) {
     }
 }
 
-// --- SCENE 1: PROFIT BY STATE (FILLED MAP) ---
-function drawScene1Map() {
-    // Create the SVG container for this scene.
-    const svg = container.append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+// --- SCENE 1: PROFIT BY CATEGORY IN A SELECTED STATE (INTERACTIVE BAR CHART) ---
+function drawScene1StateSelectorChart() {
+    const states = Array.from(profitByState.keys()).sort();
 
-    // Define D3 projection and path generator for the map.
-    const projection = d3.geoAlbersUsa().fitSize([width, height], usMapData);
-    const path = d3.geoPath().projection(projection);
+    // Create a container for the dropdown and chart
+    const vizContainer = container.append("div")
+        .attr("class", "state-select-container")
+        .style("text-align", "center");
 
-    // Define a diverging color scale for profit/loss.
-    const maxProfit = d3.max(profitByState.values());
-    const minProfit = d3.min(profitByState.values());
-    const colorScale = d3.scaleDiverging()
-        .domain([minProfit, 0, maxProfit])
-        .interpolator(d3.interpolatePiYG); // A good green-to-purple diverging scale
+    // Add a dropdown menu for state selection
+    const dropdown = vizContainer.append("select")
+        .attr("id", "state-select")
+        .on("change", function() {
+            const selectedState = d3.select(this).property("value");
+            drawStateCategoryChart(selectedState);
+        });
 
-    // Draw the states and color them by profit.
-    svg.append("g")
-        .selectAll("path")
-        .data(topojson.feature(usMapData, usMapData.objects.states).features)
+    dropdown.selectAll("option")
+        .data(states)
         .enter()
-        .append("path")
-        .attr("d", path)
-        .attr("fill", d => {
-            const stateName = d.properties.name;
-            const profit = profitByState.get(stateName) || 0; // Default to 0 if no data
-            return colorScale(profit);
-        })
-        .attr("stroke", "#fff")
-        .attr("stroke-width", "1px");
-    
-    // Add annotations for key states.
-    const annotations = [{
-        note: {
-            label: "California and New York are highly profitable regions.",
-            title: "Top Profit States"
-        },
-        data: { name: "California" },
-        dx: 50,
-        dy: -30,
-        subject: {
-            radius: 15
-        }
-    }, {
-        note: {
-            label: "Texas and Pennsylvania are major loss-making states.",
-            title: "Major Losses"
-        },
-        data: { name: "Texas" },
-        dx: -40,
-        dy: 20,
-        subject: {
-            radius: 15
-        }
-    }];
+        .append("option")
+        .attr("value", d => d)
+        .text(d => d);
 
-    // Use a custom d3.annotation type to find the state coordinates.
-    const makeAnnotations = d3.annotation()
-        .type(d3.annotationLabel)
-        .accessors({
-            x: d => path.centroid(topojson.feature(usMapData, usMapData.objects.states).features.find(f => f.properties.name === d.name))[0],
-            y: d => path.centroid(topojson.feature(usMapData, usMapData.objects.states).features.find(f => f.properties.name === d.name))[1]
-        })
-        .annotations(annotations);
+    // Draw the initial chart for the first state in the list
+    drawStateCategoryChart(states[0]);
+
+    function drawStateCategoryChart(selectedState) {
+        // Clear any existing chart
+        vizContainer.select("svg").remove();
+
+        const dataForState = profitByStateAndCategory.get(selectedState);
+        const dataArray = dataForState ? Array.from(dataForState) : [];
+
+        // Create the SVG container for this scene.
+        const svg = vizContainer.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Define scales for x (category) and y (profit).
+        const x = d3.scaleBand()
+            .domain(dataArray.map(d => d[0]))
+            .range([0, width])
+            .padding(0.1);
+
+        const maxProfit = d3.max(dataArray, d => d[1]);
+        const minProfit = d3.min(dataArray, d => d[1]);
+        const y = d3.scaleLinear()
+            .domain([Math.min(0, minProfit), maxProfit])
+            .nice()
+            .range([height, 0]);
+
+        // Draw the bars.
+        svg.selectAll(".bar")
+            .data(dataArray, d => d[0])
+            .join("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d[0]))
+            .attr("y", d => y(Math.max(0, d[1])))
+            .attr("width", x.bandwidth())
+            .attr("height", d => Math.abs(y(d[1]) - y(0)))
+            .attr("fill", d => d[1] > 0 ? "#007bff" : "#dc3545");
+
+        // Add axes.
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        // Add chart title.
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", -margin.top / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("text-decoration", "underline")
+            .text(`Profit by Category in ${selectedState}`);
+            
+        // Add annotations to highlight key categories.
+        const sortedData = dataArray.sort((a, b) => b[1] - a[1]);
+        const annotations = [];
+
+        if (sortedData.length > 0) {
+            annotations.push({
+                note: {
+                    label: `Highest profit: $${sortedData[0][1].toFixed(2)}`,
+                    title: `Highest Profit: ${sortedData[0][0]}`
+                },
+                data: { category: sortedData[0][0] },
+                dx: 50,
+                dy: -20,
+                subject: {
+                    y1: y(0),
+                    y2: y(sortedData[0][1])
+                }
+            });
+
+            const lowestProfitCategory = sortedData[sortedData.length - 1];
+            if (lowestProfitCategory[1] < 0) {
+                 annotations.push({
+                    note: {
+                        label: `Lowest profit: $${lowestProfitCategory[1].toFixed(2)}`,
+                        title: `Major Loss: ${lowestProfitCategory[0]}`
+                    },
+                    data: { category: lowestProfitCategory[0] },
+                    dx: -50,
+                    dy: 20,
+                    subject: {
+                        y1: y(0),
+                        y2: y(lowestProfitCategory[1])
+                    }
+                });
+            }
+        }
     
-    svg.append("g").call(makeAnnotations);
+        if (annotations.length > 0) {
+            const makeAnnotations = d3.annotation()
+                .type(d3.annotationCalloutRect)
+                .accessors({
+                    x: d => x(d.category) + x.bandwidth() / 2,
+                    y: d => y(dataArray.find(item => item[0] === d.category)[1])
+                })
+                .annotations(annotations);
+
+            svg.append("g").call(makeAnnotations);
+        }
+    }
 }
 
 // --- SCENE 2: PROFIT BY CATEGORY (BAR CHART) ---
@@ -178,7 +240,7 @@ function drawScene2BarChart() {
         .domain(Array.from(profitByCategory.keys()))
         .range([0, width])
         .padding(0.1);
-    
+
     const maxProfit = d3.max(Array.from(profitByCategory.values()));
     const minProfit = d3.min(Array.from(profitByCategory.values()));
     const y = d3.scaleLinear()
@@ -202,14 +264,14 @@ function drawScene2BarChart() {
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x));
-    
+
     svg.append("g")
         .call(d3.axisLeft(y));
-    
+
     // Add annotations to highlight key categories.
     const annotations = [{
         note: {
-            label: "Technology is a major contributor to total profit.",
+            label: "Technology contributes the most to overall profit.",
             title: "Highest Profit"
         },
         data: { category: "Technology" },
@@ -221,7 +283,7 @@ function drawScene2BarChart() {
         }
     }, {
         note: {
-            label: "Furniture often operates at a much lower profit margin.",
+            label: "Furniture has a much lower profit margin.",
             title: "Lower Profit"
         },
         data: { category: "Furniture" },
@@ -256,7 +318,7 @@ function drawScene3ScatterPlot() {
     const x = d3.scaleLinear()
         .domain(d3.extent(superstoreData, d => d.Discount)).nice()
         .range([0, width]);
-    
+
     const y = d3.scaleLinear()
         .domain(d3.extent(superstoreData, d => d.Profit)).nice()
         .range([height, 0]);
@@ -292,10 +354,10 @@ function drawScene3ScatterPlot() {
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x));
-    
+
     svg.append("g")
         .call(d3.axisLeft(y));
-    
+
     // Add annotations to highlight key trends.
     const annotations = [{
         note: {
@@ -310,7 +372,7 @@ function drawScene3ScatterPlot() {
         }
     }, {
         note: {
-            label: "The majority of sales occur with no discount.",
+            label: "Most sales have no discount.",
             title: "Zero Discount Sales"
         },
         data: { Discount: 0.05, Profit: 500 },
